@@ -1,0 +1,6 @@
+<?php
+
+module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.menu');
+module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.entity');
+module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.permission');
+module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.forms');

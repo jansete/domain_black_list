@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function domain_black_list_schema() {
+  $schema = array();
+
+  $schema['domain_black_list'] = array(
+    'description' => 'Table for store disallowed domains.',
+    'fields' => array(
+      'did' => array(
+        'description' => 'The primary identifier for the domain item.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The type (bundle) of this domain.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'domain' => array(
+        'description' => 'The name of domain.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the domain is active or not.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'uid' => array(
+        'description' => 'ID of Drupal user creator.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the domain was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the domain was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'description' => array(
+        'description' => 'Domain description.',
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array('did'),
+  );
+
+  return $schema;
+}
