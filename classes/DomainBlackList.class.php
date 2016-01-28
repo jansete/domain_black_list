@@ -59,4 +59,42 @@ class DomainBlackList extends Entity {
     $result = $query->execute();
     return $result->fetchAllKeyed();
   }
+
+  /**
+   *  Get some fake registers to test easier.
+   */
+  public static function getFakeDomains() {
+    return array(
+      array(
+        'domain' => 'google.es',
+        'description' => 'Spanish Google page.',
+        'status' => 1,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'marca.com',
+        'description' => 'Sports news page.',
+        'status' => 1,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'drupal.org',
+        'description' => 'Drupal website.',
+        'status' => 1,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'facebook.com',
+        'description' => 'The big social network.',
+        'status' => 0,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'github.com',
+        'description' => 'The main page for collaborate with the develop comunity.',
+        'status' => 1,
+        'uid' => 1,
+      ),
+    );
+  }
 }

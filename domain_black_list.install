@@ -63,6 +63,16 @@ function domain_black_list_schema() {
   return $schema;
 }
 
+/**
+ * Implements hook_install().
+ */
+function domain_black_list_install() {
+  $domains = DomainBlackList::getFakeDomains();
+
+  foreach ($domains as $domain) {
+    $new_domain = entity_create('domain_black_list', $domain + array('type' => DOMAIN_BLACK_LIST_BUNDLE));
+    domain_black_list_save($new_domain);
+  }
+}
 
 
-// @todo hook_install con datos de prueba
