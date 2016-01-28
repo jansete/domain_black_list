@@ -6,5 +6,6 @@ dependencies[] = entity
 
 files[] = classes/DomainBlackList.class.php
 files[] = classes/DomainBlackListController.class.php
+files[] = classes/DomainBlackListFilter.class.php
 
 configure = admin/config/system/domain-black-list/manage

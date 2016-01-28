@@ -4,3 +4,85 @@ module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.menu
 module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.entity');
 module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.permission');
 module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.forms');
+module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.theme');
+module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.preprocess');
+
+/*
+ * Example 1
+ */
+function domain_black_list_page_alter(&$page) {
+  if (variable_get('domain_black_list_filter_html_page')) {
+    $page['#post_render'][] = 'domain_black_list_page_alter_post_render';
+  }
+}
+
+/*
+ * Example 1
+ */
+function domain_black_list_page_alter_post_render($page) {
+  $domains = DomainBlackList::getActives();
+
+  if (!empty($domains)) {
+    DomainBlackListFilter::formatDomains($domains);
+    DomainBlackListFilter::removeDomainFromString($domains, $page);
+  }
+
+  return $page;
+}
+
+/*
+ * Example 2
+ */
+function domain_black_list_url_outbound_alter(&$path, &$options, $original_path) {
+  if (variable_get('domain_black_list_alter_urls') && $options['external']) {
+    $domains = DomainBlackList::getActives();
+
+    if (!empty($domains)) {
+      $domain_filtered = '';
+      DomainBlackList::isValid($path, $domain_filtered);
+      $domain_pattern =  DomainBlackListFilter::getAlterUrlsPattern($domain_filtered);
+
+      // @todo test with parse_url
+      if ($domain_pattern && preg_grep($domain_pattern, $domains)) {
+        // @todo allow choose path in settings form
+        // @todo set message
+        $path = '<front>';
+        $options['external'] = FALSE;
+        unset($options['attributes']);
+      }
+    }
+  }
+}
+
+/*
+ * Example 3
+ */
+function domain_black_list_field_attach_validate($entity_type, $entity, &$errors) {
+  if (variable_get('domain_black_list_field_validation')) {
+    // @todo save in array all matches and then format plural message
+    // @todo add more fields types
+    // @todo add more fields like $item['value'] f.e. in link it will be different
+    $fields = DomainBlackListFilter::getFieldInstanceFromEntity($entity_type, $entity->type);
+    $domains = DomainBlackList::getActives();
+
+    if (!empty($domains)) {
+      foreach ($fields as $field) {
+        foreach ($entity->{$field->field_name} as $langcode => $items) {
+          foreach ($items as $delta => $item) {
+            foreach ($domains as $domain) {
+              $domain_pattern = DomainBlackListFilter::getAlterUrlsPattern($domain);
+              if (preg_match($domain_pattern, $item['value'])) {
+                $errors[$field->field_name][$langcode][$delta][] = array(
+                  'error' => $field->field_name,
+                  'message' => t('The domain @domain is not allowed.', array('@domain' => $domain)),
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+//    2.  Crear un filtro para áreas de texto que los elimine.

@@ -18,11 +18,11 @@ function domain_black_list_add() {
 function domain_black_list_form($form, &$form_state, $domain) {
   $form_state['domain'] = $domain;
 
-  // @todo validate
   $form['domain'] = array(
     '#type' => 'textfield',
     '#required' => TRUE,
     '#title' => t('Domain'),
+    '#description' => t('Example: google.com or http://google.com'),
     '#maxlength' => 255,
     '#default_value' => $domain->domain,
   );
@@ -89,9 +89,23 @@ function domain_black_list_form_submit($form, &$form_state) {
   drupal_set_message(t('Domain %title saved.', array('%title' => entity_label('domain_black_list', $domain))));
 }
 
-// @todo
+/**
+ * Domain validate handler.
+ */
 function domain_black_list_form_validate($form, &$form_state) {
+  // Get entity id if is edit form, false if is add form
+  $domain_id = isset($form_state['domain']->did) ? $form_state['domain']->did : FALSE;
+  $domain_name = $form_state['values']['domain'];
+  $domain_filtered = '';
 
+  if (!DomainBlackList::isValid($domain_name, $domain_filtered)) {
+    form_set_error('domain', t('Domain is wrong.'));
+  }
+  elseif (DomainBlackList::isDuplicated($domain_filtered, $domain_id)) {
+    form_set_error('domain', t('This domain already exist.'));
+  }
+
+  $form_state['values']['domain'] = $domain_filtered;
 }
 
 
@@ -120,4 +134,39 @@ function domain_black_list_delete_form_submit($form, &$form_state) {
   drupal_set_message(t('Domain %title deleted.', array('%title' => entity_label('domain_black_list', $domain))));
 
   $form_state['redirect'] = DOMAIN_BLACK_LIST_ADMIN_PATH;
+}
+
+/*
+ * Settings form
+ */
+function domain_black_list_settings_form($form, &$form_state) {
+  $form['domain_black_list_filter_html_page'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove domains from HTML output'),
+    '#description' => t('This feature enable a full filter to remove domains in the final HTML ouput. <b>Important: This option may be bad for performance.</b>'),
+    '#default_value' => variable_get('domain_black_list_filter_html_page'),
+  );
+
+  $form['domain_black_list_alter_urls'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Remove url from link'),
+    '#description' => t('This feature remove the href HTML attribute from all links created with Drupal API "url" functions.'),
+    '#default_value' => variable_get('domain_black_list_alter_urls'),
+  );
+
+  $form['domain_black_list_field_validation'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Add field validations'),
+    '#description' => t('This feature enable a validation for all Fields from Field API for avoid introduce these domains.'),
+    '#default_value' => variable_get('domain_black_list_field_validation'),
+  );
+
+  $form['domain_black_list_debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Debug'),
+    '#description' => t('Show messages with the results.'),
+    '#default_value' => variable_get('domain_black_list_debug'),
+  );
+
+  return system_settings_form($form);
 }
