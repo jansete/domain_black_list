@@ -31,7 +31,7 @@ class DomainBlackList extends Entity {
    */
   public static function isValid($domain_name, &$domain_filtered = NULL) {
     $not_clean_domain = $invalid_url = FALSE;
-    $domain_pattern = '/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/';
+    $domain_pattern = DomainBlackListFilter::getValidDomainPattern();
 
     if (!preg_match($domain_pattern, $domain_name)) {
       $not_clean_domain = TRUE;

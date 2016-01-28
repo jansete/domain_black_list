@@ -2,70 +2,75 @@
 
 class DomainBlackListFilter {
 
-  public static function removeDomainFromString($domains_patterns, &$string) {
-    self::replaceDomainFromString($domains_patterns, $string);
-  }
-
-  public static function replaceDomainFromString($domains_patterns, &$string, $replace = '', $type = 'filter_html_page') {
-    $count = 0;
-    $string = preg_replace($domains_patterns, $replace, $string, -1, $count);
-
-    if (variable_get('domain_black_list_debug')) {
-      switch ($type) {
-        case 'filter_html_page':
-          $message = format_plural($count, t('1 domain was removed in the previous request ("Remove domains from HTML output").'),
-            t('@count domains were removed in the previous request ("Remove domains from HTML output").'));
-          break;
-        case 'alter_urls':
-          $message = format_plural($count, t('1 domain was removed in the current request from the href HTML attribute ("Remove url from link").'),
-            t('@count domains were removed in the current request from the href HTML attribute ("Remove url from link").'));
-          break;
-        default:
-          $message = t('Debug is enabled');
-      }
-
-      self::showDebugMessage($message);
-    }
-  }
-
   /**
-   * If debug mode is enable, show debug information like a status message.
+   * Format multiple domains to be a valid pattern for use in regular
+   * expressions.
    */
-  public static function showDebugMessage($message) {
-    if (user_access(ADMINISTER_DOMAINS_BLACK_LIST_ENTITIES_PERM)) {
-      drupal_set_message($message);
-    }
-  }
-
-  public static function formatDomains(&$domains, $type = 'filter_html_page') {
+  public static function formatDomains(&$domains, $pattern = 'html_link') {
     $result = array();
-    $types = self::getTypes();
+    $patterns = self::getPatterns();
 
     foreach ($domains as $domain) {
-      $result[] = call_user_func_array($types[$type]['callback'], array($domain));
+      $result[] = call_user_func_array($patterns[$pattern]['callback'], array($domain));
     }
 
     $domains = $result;
   }
 
-  public static function getFullHTMLPattern($domain) {
+  /**
+   * List of patterns with them attributes.
+   */
+  public static function getPatterns() {
+    return array(
+      'html_link' => array(
+        'callback' => 'DomainBlackListFilter::getHTMLLinkPattern',
+      ),
+      'simple_domain' => array(
+        'callback' => 'DomainBlackListFilter::getSimpleDomainPattern',
+      ),
+      'valid_domain' => array(
+        'callback' => 'DomainBlackListFilter::getValidDomainPattern',
+      )
+    );
+  }
+
+  /**
+   * This pattern match with <a> HTML tag when has our domain as href HTML
+   * attribute.
+   */
+  public static function getHTMLLinkPattern($domain) {
     return '/<a\s+(?:[^>]*?\s+)?href="http\:\/\/' . str_replace('.', '\\.', $domain) . '(.*?)"(.*?)>(.*?)<\/a>/im';
   }
 
-  public static function getAlterUrlsPattern($domain) {
+  /**
+   * This pattern match with the domain string.
+   */
+  public static function getSimpleDomainPattern($domain) {
     return $domain ? '/' . str_replace('.', '\\.', $domain) . '/i' : FALSE;
-//    return '/http\:\/\/' . str_replace('.', '\\.', $domain) . '(.*?)/im';
   }
 
-  public static function getTypes() {
-    return array(
-      'filter_html_page' => array(
-        'callback' => 'DomainBlackListFilter::getFullHTMLPattern',
-      ),
-      'alter_urls' => array(
-        'callback' => 'DomainBlackListFilter::getAlterUrlsPattern',
-      )
-    );
+  /**
+   * This pattern validate a domain.
+   */
+  public static function getValidDomainPattern() {
+    return '/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/';
+  }
+
+  /**
+   * Replace multiple domains patterns in a string with the $replace variable.
+   */
+  public static function replaceDomainsFromString($domains_patterns, &$string, $replace = '') {
+    $count = 0;
+    $string = preg_replace($domains_patterns, $replace, $string, -1, $count);
+
+    return $count;
+  }
+
+  /**
+   * Remove multiple domains patterns in a string.
+   */
+  public static function removeDomainsFromString($domains_patterns, &$string) {
+    return self::replaceDomainsFromString($domains_patterns, $string);
   }
 
   /**
@@ -96,27 +101,21 @@ class DomainBlackListFilter {
   }
 
   /**
+   * If debug mode is enable, show debug information like a status message.
+   */
+  public static function showDebugMessage($message) {
+    if (user_access(ADMINISTER_DOMAINS_BLACK_LIST_ENTITIES_PERM)) {
+      drupal_set_message($message);
+    }
+  }
+
+  /**
    * Show disable feature message, when access to a example page but this
    * feature is disabled.
    */
   public static function showDisableFeatureMessage() {
-    drupal_set_message(t('This feature is disabled, go to !link', array(
+    self::showDebugMessage(t('This feature is disabled, go to !link', array(
         '!link' => l(t('settings form'), DOMAIN_BLACK_LIST_ADMIN_PATH . '/settings')))
     );
   }
-
-//  public static function getScapedChars() {
-//    return array(
-//      '\\',
-//      '^',
-//      '$',
-//      '.',
-//      '[',
-//      ']',
-//      '|',
-//      '(',
-//      ')',
-//      '?',
-//    );
-//  }
 }

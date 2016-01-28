@@ -17,14 +17,20 @@ function domain_black_list_page_alter(&$page) {
 }
 
 /**
- * Example 1: We clean all links that we have.
+ * Example 1: Clean all links that we have.
  */
 function domain_black_list_page_alter_post_render($page) {
   $domains = DomainBlackList::getActives();
 
   if (!empty($domains)) {
     DomainBlackListFilter::formatDomains($domains);
-    DomainBlackListFilter::removeDomainFromString($domains, $page);
+    $count = DomainBlackListFilter::removeDomainsFromString($domains, $page);
+
+    if (variable_get('domain_black_list_debug')) {
+      $message = format_plural($count, t('1 domain was removed in the previous request ("Remove domains from HTML output").'),
+        t('@count domains were removed in the previous request ("Remove domains from HTML output").'));
+      DomainBlackListFilter::showDebugMessage($message);
+    }
   }
 
   return $page;
@@ -40,15 +46,15 @@ function domain_black_list_url_outbound_alter(&$path, &$options, $original_path)
     if (!empty($domains)) {
       $domain_filtered = '';
       DomainBlackList::isValid($path, $domain_filtered);
-      $domain_pattern =  DomainBlackListFilter::getAlterUrlsPattern($domain_filtered);
+      $domain_pattern =  DomainBlackListFilter::getSimpleDomainPattern($domain_filtered);
 
       // @todo test with parse_url
       if ($domain_pattern && preg_grep($domain_pattern, $domains)) {
         // @todo allow choose path in settings form
-        // @todo set message
         $path = '<front>';
-        $options['external'] = FALSE;
-        unset($options['attributes']);
+
+        $message = t('@domain has been removed in the current request from the href HTML attribute ("Remove url from link").', array('@domain' => $domain_filtered));
+        DomainBlackListFilter::showDebugMessage($message);
       }
     }
   }
@@ -70,7 +76,7 @@ function domain_black_list_field_attach_validate($entity_type, $entity, &$errors
         foreach ($entity->{$field->field_name} as $langcode => $items) {
           foreach ($items as $delta => $item) {
             foreach ($domains as $domain) {
-              $domain_pattern = DomainBlackListFilter::getAlterUrlsPattern($domain);
+              $domain_pattern = DomainBlackListFilter::getSimpleDomainPattern($domain);
 
               if (preg_match($domain_pattern, $item['value'])) {
                 $errors[$field->field_name][$langcode][$delta][] = array(
