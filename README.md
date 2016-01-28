@@ -1,6 +1,6 @@
 # Domain Black List
 
-Este módulo te permite añadir dominios en una lista negra, para que no
+Este módulo te permite añadir dominios en una lista negra para que no
 aparezcan en tu sitio.
 
 Hay tres tipos de baneo y cada uno de ellos se puede activar o desactivar en el
@@ -24,6 +24,9 @@ Se pueden añadir, editar, eliminar, activar y desactivar dominios a través de 
 página principal del módulo admin/config/system/domain-black-list/manage
 donde también encontramos un listado de todos ellos.
 
+Hay tres pestañas de ejemplo que te permiten ver mejor el funcionamiento de cada
+apartado, para ello es recomendable activar la opción de debur y probar activando
+y desactivando cada opción en cada ejemplo.
 
 A lo largo del módulo hay @todos con mejoras y propuestas, también decir que hay
 algunos aspectos mejorables como las expresiones regulares utilizadas.

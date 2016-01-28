@@ -102,7 +102,7 @@ function domain_black_list_field_attach_validate($entity_type, $entity, &$errors
 }
 
 /*
- * Example 4: Other option could be implements a filter for filtereds texts that
+ * Example 4: Other option could be implements a filter for filtered texts that
  *            transform the output removing invalid domains.
  * @todo
  */
