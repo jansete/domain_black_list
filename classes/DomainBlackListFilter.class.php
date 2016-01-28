@@ -95,6 +95,16 @@ class DomainBlackListFilter {
     return $query->execute()->fetchAll();
   }
 
+  /**
+   * Show disable feature message, when access to a example page but this
+   * feature is disabled.
+   */
+  public static function showDisableFeatureMessage() {
+    drupal_set_message(t('This feature is disabled, go to !link', array(
+        '!link' => l(t('settings form'), DOMAIN_BLACK_LIST_ADMIN_PATH . '/settings')))
+    );
+  }
+
 //  public static function getScapedChars() {
 //    return array(
 //      '\\',

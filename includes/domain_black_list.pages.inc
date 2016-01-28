@@ -50,11 +50,8 @@ function domain_black_list_basic_list_entities() {
  */
 function domain_black_list_example_3_page() {
   drupal_set_message(t('Write a domain in the body, fill other fields and click in submit button.'));
-  // @todo refactor
   if (!variable_get('domain_black_list_field_validation')) {
-    drupal_set_message(t('This feature is disabled, go to !link', array(
-      '!link' => l(t('settings form'), DOMAIN_BLACK_LIST_ADMIN_PATH . '/settings')))
-    );
+    DomainBlackListFilter::showDisableFeatureMessage();
   }
 
   // @todo check if content type exist else redirect to configuration page
