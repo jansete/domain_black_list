@@ -76,12 +76,30 @@ class DomainBlackListFilter {
   /**
    * Get field types where validate it.
    * @todo create hook for extends with others modules
+   * @todo add more fields types
    */
-  public static function getValidateFieldTypes() {
+  public static function getValidateFieldTypesInfo() {
     return array(
-      'text_long',
-      'text_with_summary',
+      'text_long' => array(
+        'properties_validation' => array('value')
+      ),
+      'text_with_summary' => array(
+        'properties_validation' => array('value')
+      ),
+      // Requires link module
+      'link_field' => array(
+        'properties_validation' => array(
+          'title',
+          'url',
+        ),
+        'callback' => 'DomainBlackListFilter::linkFieldAlterFieldError'
+      )
     );
+  }
+
+  public static function linkFieldAlterFieldError(&$error, $property) {
+    $error['error_element']['url'] = $error['error_element']['title'] = FALSE;
+    $error['error_element'][$property] = TRUE;
   }
 
   /**
@@ -89,14 +107,15 @@ class DomainBlackListFilter {
    *  entity.
    */
   public static function getValidateFieldsInstancesFromEntity($entity_type, $bundle) {
-    $validate_fields = self::getValidateFieldTypes();
+    $validate_fields_info = self::getValidateFieldTypesInfo();
 
     $query = db_select('field_config_instance', 'fci');
     $query->innerJoin('field_config', 'fc', 'fc.field_name = fci.field_name');
     $query->fields('fci', array('field_name'));
+    $query->addField('fc', 'type');
     $query->condition('fci.entity_type', $entity_type)
       ->condition('fci.bundle', $bundle)
-      ->condition('fc.type', $validate_fields, 'IN');
+      ->condition('fc.type', array_keys($validate_fields_info), 'IN');
     return $query->execute()->fetchAll();
   }
 

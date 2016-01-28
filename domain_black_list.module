@@ -62,14 +62,13 @@ function domain_black_list_url_outbound_alter(&$path, &$options, $original_path)
 }
 
 /**
- * Example 3: Validate fields for don't allow submit invalid domains.
+ * Example 3: Validate fields for don't allow submit banned domains.
  */
 function domain_black_list_field_attach_validate($entity_type, $entity, &$errors) {
   if (variable_get('domain_black_list_field_validation')) {
     // @todo save in array all matches and then format plural message
-    // @todo add more fields types
-    // @todo add more fields like $item['value'] f.e. in link it will be different
     $fields = DomainBlackListFilter::getValidateFieldsInstancesFromEntity($entity_type, $entity->type);
+    $validate_fields_info = DomainBlackListFilter::getValidateFieldTypesInfo();
     $domains = DomainBlackList::getActives();
 
     if (!empty($domains)) {
@@ -78,12 +77,21 @@ function domain_black_list_field_attach_validate($entity_type, $entity, &$errors
           foreach ($items as $delta => $item) {
             foreach ($domains as $domain) {
               $domain_pattern = DomainBlackListFilter::getSimpleDomainPattern($domain);
+              $properties = $validate_fields_info[$field->type]['properties_validation'];
 
-              if (preg_match($domain_pattern, $item['value'])) {
-                $errors[$field->field_name][$langcode][$delta][] = array(
-                  'error' => $field->field_name,
-                  'message' => t('The domain @domain is not allowed.', array('@domain' => $domain)),
-                );
+              foreach ($properties as $property) {
+                if (isset($item[$property]) && preg_match($domain_pattern, $item[$property])) {
+                  $error = array(
+                    'error' => $field->field_name,
+                    'message' => t('The domain @domain is not allowed.', array('@domain' => $domain)),
+                  );
+
+                  if (isset($validate_fields_info[$field->type]['callback'])) {
+                    call_user_func_array($validate_fields_info[$field->type]['callback'], array(&$error, $property));
+                  }
+
+                  $errors[$field->field_name][$langcode][$delta][] = $error;
+                }
               }
             }
           }
