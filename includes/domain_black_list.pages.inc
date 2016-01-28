@@ -2,27 +2,29 @@
 
 /**
  * Returns a render array with all domains entities.
- * @todo Add pager
  */
 function domain_black_list_basic_list_entities() {
-  $content = array();
-  // Load all of our entities.
-  $entities = domain_black_list_load_multiple();
-  if (!empty($entities)) {
-    foreach ($entities as $entity) {
-      // Create tabular rows for our entities.
-      $rows[] = array(
-        'data' => array(
-          'id' => $entity->did,
-          'domain' => $entity->domain,
-          'status' => $entity->status,
-          'edit_link' => l(t('edit'), DOMAIN_BLACK_LIST_ADMIN_PATH . '/domain/' . $entity->did . '/edit'),
-          'delete_link' => l(t('delete'), DOMAIN_BLACK_LIST_ADMIN_PATH. '/domain/' . $entity->did . '/delete'),
-        ),
-      );
-    }
-    // Put our entities into a themed table.
-    $content['entity_table'] = array(
+  $content = $rows = array();
+
+  // Load all of our domains.
+  $entities = DomainBlackList::getAll(TRUE, 10);
+
+  foreach ($entities as $entity) {
+    // Create tabular rows for our domains.
+    $rows[] = array(
+      'data' => array(
+        'id' => $entity->did,
+        'domain' => $entity->domain,
+        'status' => $entity->status,
+        'edit_link' => l(t('edit'), DOMAIN_BLACK_LIST_ADMIN_PATH . '/domain/' . $entity->did . '/edit'),
+        'delete_link' => l(t('delete'), DOMAIN_BLACK_LIST_ADMIN_PATH. '/domain/' . $entity->did . '/delete'),
+      ),
+    );
+  }
+
+  if (!empty($rows)) {
+    // Put our domains into a themed table.
+    $content['table'] = array(
       '#theme' => 'table',
       '#rows' => $rows,
       '#header' => array(
@@ -33,6 +35,7 @@ function domain_black_list_basic_list_entities() {
         t('Delete Link')
       ),
     );
+    $content['pager'] = array('#theme' => 'pager');
   }
   else {
     // There were no entities. Tell the user.
@@ -41,6 +44,7 @@ function domain_black_list_basic_list_entities() {
       '#markup' => t('No domains currently exist.'),
     );
   }
+
   return $content;
 }
 

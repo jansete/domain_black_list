@@ -61,6 +61,30 @@ class DomainBlackList extends Entity {
   }
 
   /**
+   * Get all domains.
+   */
+  public static function getAll($pager = NULL, $limit = NULL, $start = 0) {
+
+    if ($pager) {
+      $query = db_select('domain_black_list', 'dbl')->extend('PagerDefault');
+    }
+    else {
+      $query = db_select('domain_black_list', 'dbl');
+    }
+
+    if ($pager && $limit) {
+      $query->limit($limit);
+    }
+    elseif ($limit) {
+      $query->range($start, $limit);
+    }
+
+    return $query->fields('dbl', array('did','domain', 'status'))
+      ->orderBy('dbl.did')
+      ->execute();
+  }
+
+  /**
    *  Get some fake registers to test easier.
    */
   public static function getFakeDomains() {
@@ -92,6 +116,42 @@ class DomainBlackList extends Entity {
       array(
         'domain' => 'github.com',
         'description' => 'The main page for collaborate with the develop comunity.',
+        'status' => 1,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'youtube.com',
+        'description' => 'Main video page.',
+        'status' => 0,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'hattrick.org',
+        'description' => 'Online soccer manager game.',
+        'status' => 0,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'twitter.com',
+        'description' => 'The social network with shortest messages.',
+        'status' => 1,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'platzi.com',
+        'description' => 'Big community for learn developing.',
+        'status' => 1,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'gmail.com',
+        'description' => 'The best free inbox email by Google.',
+        'status' => 0,
+        'uid' => 1,
+      ),
+      array(
+        'domain' => 'linkedin.com',
+        'description' => 'The business social network.',
         'status' => 1,
         'uid' => 1,
       ),
