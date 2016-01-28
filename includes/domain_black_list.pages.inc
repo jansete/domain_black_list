@@ -44,12 +44,19 @@ function domain_black_list_basic_list_entities() {
   return $content;
 }
 
+/**
+ *  Callback for example 3: Show message if feature is disabled. Redirect to
+ *  content edit form to test it.
+ */
 function domain_black_list_example_3_page() {
   drupal_set_message(t('Write a domain in the body, fill other fields and click in submit button.'));
   // @todo refactor
   if (!variable_get('domain_black_list_field_validation')) {
-    drupal_set_message(t('This feature is disabled, go to !link', array('!link' => l(t('settings form'), DOMAIN_BLACK_LIST_ADMIN_PATH . '/settings'))));
+    drupal_set_message(t('This feature is disabled, go to !link', array(
+      '!link' => l(t('settings form'), DOMAIN_BLACK_LIST_ADMIN_PATH . '/settings')))
+    );
   }
 
+  // @todo check if content type exist else redirect to configuration page
   drupal_goto('node/add/article');
 }

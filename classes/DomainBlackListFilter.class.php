@@ -28,6 +28,9 @@ class DomainBlackListFilter {
     }
   }
 
+  /**
+   * If debug mode is enable, show debug information like a status message.
+   */
   public static function showDebugMessage($message) {
     if (user_access(ADMINISTER_DOMAINS_BLACK_LIST_ENTITIES_PERM)) {
       drupal_set_message($message);
@@ -65,6 +68,10 @@ class DomainBlackListFilter {
     );
   }
 
+  /**
+   * Get field types where validate it.
+   * @todo create hook for extends with others modules
+   */
   public static function getValidateFieldTypes() {
     return array(
       'text_long',
@@ -72,7 +79,11 @@ class DomainBlackListFilter {
     );
   }
 
-  public static function getFieldInstanceFromEntity($entity_type, $bundle) {
+  /**
+   *  Get fields instances that belong in validate field types array in an
+   *  entity.
+   */
+  public static function getValidateFieldsInstancesFromEntity($entity_type, $bundle) {
     $validate_fields = self::getValidateFieldTypes();
 
     $query = db_select('field_config_instance', 'fci');

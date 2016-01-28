@@ -10,6 +10,7 @@ function domain_black_list_menu() {
   $include_path = $path . '/includes';
   $items = array();
 
+  // Main page of module: List all the entities.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH] = array(
     'title' => 'Administer Domains Black List',
     'page callback' => 'domain_black_list_basic_list_entities',
@@ -18,13 +19,14 @@ function domain_black_list_menu() {
     'file path' => $include_path,
   );
 
-  // List of all entity_example_basic entities.
+  // Define default local task.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/list'] = array(
     'title' => 'List',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 1,
   );
 
+  // Configuration form.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/settings'] = array(
     'title' => 'Settings',
     'page callback' => 'drupal_get_form',
@@ -36,6 +38,7 @@ function domain_black_list_menu() {
     'weight' => 2,
   );
 
+  // Example 1 page.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/example-1'] = array(
     'title' => 'Example 1',
     'page callback' => 'theme',
@@ -45,6 +48,7 @@ function domain_black_list_menu() {
     'weight' => 3,
   );
 
+  // Example 2 page.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/example-2'] = array(
     'title' => 'Example 2',
     'page callback' => 'theme',
@@ -54,6 +58,7 @@ function domain_black_list_menu() {
     'weight' => 4,
   );
 
+  // Example 3 page: then redirect to add content form.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/example-3'] = array(
     'title' => 'Example 3',
     'page callback' => 'domain_black_list_example_3_page',
@@ -64,6 +69,7 @@ function domain_black_list_menu() {
     'weight' => 5,
   );
 
+  // Create domain form.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/domain/add'] = array(
     'title' => 'Add an Domain Black List Entity',
     'page callback' => 'domain_black_list_add',
@@ -75,6 +81,7 @@ function domain_black_list_menu() {
 
   $domain_uri = 'domain/%domain_black_list';
 
+// Edit domain form.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/'. $domain_uri . '/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
@@ -87,6 +94,7 @@ function domain_black_list_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
 
+  // Delete domain confirm form.
   $items[DOMAIN_BLACK_LIST_ADMIN_PATH . '/'. $domain_uri . '/delete'] = array(
     'title' => 'Delete Domain',
     'title callback' => 'domain_black_list_label',

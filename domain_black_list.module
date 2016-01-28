@@ -7,8 +7,8 @@ module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.form
 module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.theme');
 module_load_include('inc', 'domain_black_list', 'includes/domain_black_list.preprocess');
 
-/*
- * Example 1
+/**
+ * Example 1: Used for add post render callback.
  */
 function domain_black_list_page_alter(&$page) {
   if (variable_get('domain_black_list_filter_html_page')) {
@@ -16,8 +16,8 @@ function domain_black_list_page_alter(&$page) {
   }
 }
 
-/*
- * Example 1
+/**
+ * Example 1: We clean all links that we have.
  */
 function domain_black_list_page_alter_post_render($page) {
   $domains = DomainBlackList::getActives();
@@ -30,8 +30,8 @@ function domain_black_list_page_alter_post_render($page) {
   return $page;
 }
 
-/*
- * Example 2
+/**
+ * Example 2: Alter href attributes for links that used url().
  */
 function domain_black_list_url_outbound_alter(&$path, &$options, $original_path) {
   if (variable_get('domain_black_list_alter_urls') && $options['external']) {
@@ -54,15 +54,15 @@ function domain_black_list_url_outbound_alter(&$path, &$options, $original_path)
   }
 }
 
-/*
- * Example 3
+/**
+ * Example 3: Validate fields for don't allow submit invalid domains.
  */
 function domain_black_list_field_attach_validate($entity_type, $entity, &$errors) {
   if (variable_get('domain_black_list_field_validation')) {
     // @todo save in array all matches and then format plural message
     // @todo add more fields types
     // @todo add more fields like $item['value'] f.e. in link it will be different
-    $fields = DomainBlackListFilter::getFieldInstanceFromEntity($entity_type, $entity->type);
+    $fields = DomainBlackListFilter::getValidateFieldsInstancesFromEntity($entity_type, $entity->type);
     $domains = DomainBlackList::getActives();
 
     if (!empty($domains)) {
@@ -71,6 +71,7 @@ function domain_black_list_field_attach_validate($entity_type, $entity, &$errors
           foreach ($items as $delta => $item) {
             foreach ($domains as $domain) {
               $domain_pattern = DomainBlackListFilter::getAlterUrlsPattern($domain);
+
               if (preg_match($domain_pattern, $item['value'])) {
                 $errors[$field->field_name][$langcode][$delta][] = array(
                   'error' => $field->field_name,
@@ -85,4 +86,8 @@ function domain_black_list_field_attach_validate($entity_type, $entity, &$errors
   }
 }
 
-//    2.  Crear un filtro para áreas de texto que los elimine.
+/*
+ * Example 4: Other option could be implements a filter for filtereds texts that
+ *            transform the output removing invalid domains.
+ * @todo
+ */

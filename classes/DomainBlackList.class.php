@@ -2,10 +2,16 @@
 
 class DomainBlackList extends Entity {
 
+  /**
+   * Return entity label.
+   */
   protected function defaultLabel() {
     return $this->domain;
   }
 
+  /**
+   * Check if domain already exist.
+   */
   public static function isDuplicated($domain_name, $domain_id = FALSE) {
     $query = db_select('domain_black_list', 'dbl');
     $query->fields('dbl', array('did'));
@@ -20,6 +26,9 @@ class DomainBlackList extends Entity {
     return $result->fetchField();
   }
 
+  /**
+   * Check if domain has been written correctly.
+   */
   public static function isValid($domain_name, &$domain_filtered = NULL) {
     $not_clean_domain = $invalid_url = FALSE;
     $domain_pattern = '/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/';
@@ -40,6 +49,9 @@ class DomainBlackList extends Entity {
     return !$not_clean_domain && !$invalid_url || $not_clean_domain && !$invalid_url;
   }
 
+  /**
+   * Get all actives domains ids.
+   */
   public static function getActives() {
     $query = db_select('domain_black_list', 'dbl');
     $query->fields('dbl', array('did','domain'));

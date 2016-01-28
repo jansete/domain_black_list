@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Implements hook_theme().
+ */
 function domain_black_list_theme($existing, $type, $theme, $path) {
   $path .= '/theme';
   return array(
