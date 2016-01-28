@@ -35,6 +35,7 @@ class DomainBlackList extends Entity {
 
     if (!preg_match($domain_pattern, $domain_name)) {
       $not_clean_domain = TRUE;
+
       if ($host = parse_url($domain_name, PHP_URL_HOST)) {
         $domain_filtered = $host;
       }

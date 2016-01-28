@@ -44,16 +44,17 @@ function domain_black_list_url_outbound_alter(&$path, &$options, $original_path)
     $domains = DomainBlackList::getActives();
 
     if (!empty($domains)) {
-      $domain_filtered = '';
-      DomainBlackList::isValid($path, $domain_filtered);
-      $domain_pattern =  DomainBlackListFilter::getSimpleDomainPattern($domain_filtered);
+      $path_domain_filtered = '';
 
-      // @todo test with parse_url
-      if ($domain_pattern && preg_grep($domain_pattern, $domains)) {
-        // @todo allow choose path in settings form
+      // Get the domain filtered. E.g: http://google.es -> googles.es
+      DomainBlackList::isValid($path, $path_domain_filtered);
+
+      if ($path_domain_filtered && in_array($path_domain_filtered, $domains)) {
+        // @todo allow choose replace path in settings form
         $path = '<front>';
+        $options['external'] = FALSE;
 
-        $message = t('@domain has been removed in the current request from the href HTML attribute ("Remove url from link").', array('@domain' => $domain_filtered));
+        $message = t('@domain has been removed in the current request from the href HTML attribute ("Remove url from link").', array('@domain' => $path_domain_filtered));
         DomainBlackListFilter::showDebugMessage($message);
       }
     }
